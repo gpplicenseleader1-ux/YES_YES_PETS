@@ -791,14 +791,72 @@ window.addEventListener('scroll', () => {
   if (bg) bg.style.transform = `translateY(${y * .3}px)`;
 }, {passive:true});
 
+// ═══ TELEGRAM CONFIG ═══
+// ⚠️ ЗАМЕНИ YOUR_CHAT_ID на свой ID (узнай через @userinfobot в Telegram)
+const TG_BOT_TOKEN = '7916777738:AAF7c4XRWUGbCxXVDfFVlrXzQjJWnGkF0LU';
+const TG_CHAT_ID   = '6919810733';
+
+async function sendToTelegram(text) {
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
+    });
+    return (await res.json()).ok;
+  } catch(e) {
+    return false;
+  }
+}
+
 // ═══ FORMS ═══
-document.getElementById('donateForm').addEventListener('submit', function(e) {
+document.getElementById('donateForm').addEventListener('submit', async function(e) {
   e.preventDefault();
+  const btn = this.querySelector('button[type=submit]');
+  btn.disabled = true;
+  btn.textContent = '⏳ Отправка...';
+
+  const inputs = this.querySelectorAll('input, textarea');
+  const name  = inputs[0].value.trim();
+  const phone = inputs[1].value.trim();
+  const email = inputs[2].value.trim();
+  const help  = inputs[3].value.trim();
+
+  const msg =
+    `🐾 <b>НОВАЯ ЗАЯВКА — YES YES PETS</b>\n` +
+    `📋 <b>Тип:</b> Помощь / Пожертвование\n\n` +
+    `👤 <b>Имя:</b> ${name}\n` +
+    `📞 <b>Телефон:</b> ${phone}\n` +
+    `📧 <b>Email:</b> ${email || 'не указан'}\n` +
+    `💬 <b>Чем хочет помочь:</b> ${help || 'не указано'}\n\n` +
+    `🕒 ${new Date().toLocaleString('ru-RU')}`;
+
+  await sendToTelegram(msg);
   this.style.display = 'none';
   document.getElementById('donateSuc').style.display = 'block';
 });
-document.getElementById('volForm').addEventListener('submit', function(e) {
+
+document.getElementById('volForm').addEventListener('submit', async function(e) {
   e.preventDefault();
+  const btn = this.querySelector('button[type=submit]');
+  btn.disabled = true;
+  btn.textContent = '⏳ Отправка...';
+
+  const inputs = this.querySelectorAll('input, textarea');
+  const name  = inputs[0].value.trim();
+  const phone = inputs[1].value.trim();
+  const email = inputs[2].value.trim();
+  const about = inputs[3].value.trim();
+
+  const msg =
+    `🙌 <b>НОВЫЙ ВОЛОНТЁР — YES YES PETS</b>\n\n` +
+    `👤 <b>Имя:</b> ${name}\n` +
+    `📞 <b>Телефон:</b> ${phone}\n` +
+    `📧 <b>Email:</b> ${email || 'не указан'}\n` +
+    `📝 <b>О себе:</b> ${about || 'не указано'}\n\n` +
+    `🕒 ${new Date().toLocaleString('ru-RU')}`;
+
+  await sendToTelegram(msg);
   this.style.display = 'none';
   document.getElementById('volSuc').style.display = 'block';
 });
